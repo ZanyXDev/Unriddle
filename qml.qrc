@@ -8,5 +8,7 @@
         <file>res/qml/Theme/qmldir</file>
         <file>res/qml/Theme/theme.qml</file>
         <file>res/qml/Common/materialpane.qml</file>
+        <file>res/qml/Models/alphabetmodel.qml</file>
+        <file>res/qml/Models/qmldir</file>
     </qresource>
 </RCC>
