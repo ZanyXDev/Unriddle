@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="qtquickcontrols2.conf">res/qml/qtquickcontrols2.conf</file>
+        <file>res/qml/main.qml</file>
+        <file>res/qml/Common/qmldir</file>
+        <file>res/qml/Common/MyDebugRect.qml</file>
+        <file>res/qml/Common/Toast.qml</file>
+        <file>res/qml/Theme/qmldir</file>
+        <file>res/qml/Theme/Theme.qml</file>
+    </qresource>
+</RCC>
