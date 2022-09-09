@@ -60,26 +60,25 @@ QQC2.ApplicationWindow {
 
     // ----- Visual children
     header: QQC2.ToolBar {
+        id: pageHeader
         RowLayout {
             anchors.fill: parent
             spacing: 2 * DevicePixelRatio
             QQC2.ToolButton {
-                id: btnDrawer
+                id: btnChartShow
                 Layout.alignment: Qt.AlignTop | Qt.AlignLeft
 
                 icon.source: "qrc:/res/images/icons/ic_bar_chart.svg"
 
                 onClicked: {
-                    if (!navDrawer.opened)
-                        navDrawer.open()
-
-                    if (navDrawer.opened)
-                        navDrawer.close()
+                    if (isDebugMode) {
+                        console.log("btnChartShow click")
+                    }
                 }
             }
 
+            // spacer item
             Item {
-                // spacer item
                 Layout.fillHeight: true
             }
 
@@ -96,8 +95,8 @@ QQC2.ApplicationWindow {
                 }
             }
 
+            // spacer item
             Item {
-                // spacer item
                 Layout.fillHeight: true
             }
 
@@ -106,6 +105,44 @@ QQC2.ApplicationWindow {
                 visible: isMoreMenuNeed
                 icon.source: "qrc:/res/images/icons/ic_bullet.svg"
                 //action: optionsMenuAction
+            }
+        }
+    }
+
+    ColumnLayout {
+        visible: true
+        id: mainColumnLayout
+
+        spacing: 4 * DevicePixelRatio
+
+        anchors {
+            topMargin: 4 * DevicePixelRatio
+            leftMargin: 4 * DevicePixelRatio
+            rightMargin: 4 * DevicePixelRatio
+            bottomMargin: 4 * DevicePixelRatio
+            fill: parent
+        }
+
+        component ProportionalRect: Item {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.preferredWidth: 1
+            Layout.preferredHeight: 1
+        }
+        ProportionalRect {
+            id: chipherRect
+            Layout.preferredHeight: 320 * DevicePixelRatio
+            MaterialPane {
+                id: chipherPanel
+                primaryColor: Theme.primary
+            }
+        }
+        ProportionalRect {
+            id: alphabetRect
+            Layout.preferredHeight: 148 * DevicePixelRatio
+            MaterialPane {
+                id: alphabetPanel
+                primaryColor: Theme.primary
             }
         }
     }
