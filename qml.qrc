@@ -7,5 +7,7 @@
         <file>res/qml/Common/Toast.qml</file>
         <file>res/qml/Theme/qmldir</file>
         <file>res/qml/Theme/Theme.qml</file>
+        <file>res/qml/Cells/qmldir</file>
+        <file>res/qml/Cells/letter.qml</file>
     </qresource>
 </RCC>
