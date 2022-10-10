@@ -8,6 +8,7 @@ import QtQuick.Controls.Material.impl 2.12
 
 import Common 1.0
 import Theme 1.0
+import Cells 1.0
 
 QQC2.ApplicationWindow {
     id: appWnd
@@ -143,6 +144,24 @@ QQC2.ApplicationWindow {
             MaterialPane {
                 id: alphabetPanel
                 primaryColor: Theme.primary
+                Letter {
+                    id: testLetter
+                    text: qsTr("A")
+                    font {
+                        family: font_families
+                        pointSize: 16
+                    }
+                    onClicked: {
+                        if (isDebugMode) {
+                            console.log("testLetter click")
+                        }
+                    }
+                    onSelectLetter: {
+                        if (isDebugMode) {
+                            console.log("selectLetter:" + letter)
+                        }
+                    }
+                }
             }
         }
     }
