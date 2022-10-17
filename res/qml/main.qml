@@ -9,6 +9,7 @@ import QtQuick.Controls.Material.impl 2.15
 import Common 1.0
 import Theme 1.0
 import Cells 1.0
+import DataModels 1.0 as DM
 
 QQC2.ApplicationWindow {
     id: appWnd
@@ -190,7 +191,9 @@ QQC2.ApplicationWindow {
     }
 
     // ----- Qt provided non-visual children
-
+    DM.CipherDataModel {
+        id: cipherDataModel
+    }
     // ----- Custom non-visual children
 
     // ----- JavaScript functions

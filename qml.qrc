@@ -10,7 +10,7 @@
         <file>res/qml/Common/materialpane.qml</file>
         <file>res/qml/Cells/letter.qml</file>
         <file>res/qml/Cells/qmldir</file>
-        <file>res/qml/Models/cipherdatamodel.qml</file>
-        <file>res/qml/Models/qmldir</file>
+        <file>res/qml/DataModels/cipherdatamodel.qml</file>
+        <file>res/qml/DataModels/qmldir</file>
     </qresource>
 </RCC>
