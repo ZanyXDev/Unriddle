@@ -47,36 +47,16 @@ QQC2.ApplicationWindow {
     }
 
     Component.onCompleted: {
-        if (isDebugMode) {
-            encTxtModel.append({
-                                   "deccharrole": " ",
-                                   "enccharole": "Н",
-                                   "staterole": false,
-                                   "countrole": 1
-                               })
-            encTxtModel.append({
-                                   "deccharrole": " ",
-                                   "enccharole": "М",
-                                   "staterole": false,
-                                   "countrole": 7
-                               })
-            encTxtModel.append({
-                                   "deccharrole": " ",
-                                   "enccharole": "В",
-                                   "staterole": false,
-                                   "countrole": 9
-                               })
-        }
 
-        //appManager.initialize()
     }
 
-    //onClosing: appManager.uninitialize();
+    onClosing: appCore.uninitialize()
     onAppInForegroundChanged: {
         if (appInForeground) {
             if (!appInitialized) {
                 appInitialized = true
                 Theme.setDarkMode()
+                appCore.initialize()
             }
         } else {
             if (isDebugMode)
@@ -162,6 +142,16 @@ QQC2.ApplicationWindow {
             MaterialPane {
                 id: chipherPanel
                 primaryColor: Theme.primary
+                Text {
+                    id: baseText
+                    text: appCore.cipherText
+                    visible: true
+                    onTextChanged: {
+                        if (isDebugMode) {
+                            console.log("baseText changed:" + text)
+                        }
+                    }
+                }
             }
         }
         ProportionalRect {

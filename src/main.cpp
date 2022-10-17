@@ -24,6 +24,8 @@
 #include <QDirIterator>
 #endif
 
+#include "appcore.h"
+
 void createAppConfigFolder()
 {
     QDir dirConfig(
@@ -74,6 +76,8 @@ int main(int argc, char *argv[]) {
      */
     // create folder AppConfigLocation
     createAppConfigFolder();
+
+    AppCore appCore;    // Create the application core with signals and slots
 
     QTranslator myappTranslator;
     myappTranslator.load(QLocale(), QLatin1String("unriddle"), QLatin1String("_"),
@@ -175,24 +179,9 @@ int main(int argc, char *argv[]) {
     context->setContextProperty("font_families",getAppFont() );
 #ifdef QT_DEBUG
     context->setContextProperty("isDebugMode",true );
-    //EncTxtModel encTxtModel;
-    //НМВ ЖЦТЧТБЙЗМ ЦЗГЗЧТЗ, ЧЗ РКХАЬГЙР ВЕЗ ХМВЦВЧК,
-    //КТО ПРИНИМАЕТ РЕШЕНИЕ, НЕ ВЫСЛУШАВ ОБЕ СТОРОНЫ,
-
-    //ЖВХМЬЖЙЗМ ЧЗХЖЦЙРЗИАТРВ, ОВМЛ ЕК ЦЗГЗЧТЗ ФМВ Т
-    //ПОСТУПАЕТ НЕСПРАВЕДЛИВО, ХОТЯ БЫ РЕШЕНИЕ ЭТО И
-    //ЕКАИ ХЖЦЙРЗИАТРВЗ.
-    //БЫЛО СПРАВЕДЛИВОЕ.
-    // 14 З, 1 Б, 1 Л, 1 Н, 1 О, 1 Ф, 2 Ь, 3 Г, 3 Е , 3 И, 4 А, 4 К, 5 Ж, 5 Й,
-    //  5 Х, 6 Р, 6 Ц , 6 Ч, 7 М, 7 Т, 9 В
-
-    // DecCharRole,EncCharRole,StateRole,CountRole
-
-    //    encTxtModel.append({" ","Н",false,1});
-    //    encTxtModel.append({" ","М",false,7});
-    //    encTxtModel.append({" ","В",false,9});
 #endif
-    //context->setContextProperty("encTxtModel", &encTxtModel);
+
+    context->setContextProperty("appCore", &appCore);
     QObject::connect(
                 &engine, &QQmlApplicationEngine::objectCreated, &app,
                 [url](QObject *obj, const QUrl &objUrl) {

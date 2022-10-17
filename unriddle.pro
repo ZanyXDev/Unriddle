@@ -28,6 +28,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #don't use precompiled headers https://www.kdab.com/beware-of-qt-module-wide-includes/
 
 SOURCES += \
+    src/appcore.cpp \
     src/main.cpp 
 
 #HEADERS += \
@@ -55,3 +56,6 @@ QML_DESIGNER_IMPORT_PATH =
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH = $$PWD/res/qml
+
+HEADERS += \
+    src/appcore.h
