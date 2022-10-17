@@ -1,4 +1,4 @@
-!versionAtLeast(QT_VERSION, 5.10.0):error("Requires Qt version 5.10.0 or greater.")
+!versionAtLeast(QT_VERSION, 5.15.0):error("Requires Qt version 5.15.0 or greater.")
 
 TEMPLATE +=app
 TARGET = UnRiddle
