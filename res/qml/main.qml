@@ -46,6 +46,32 @@ QQC2.ApplicationWindow {
         screenOrientationUpdated(screenOrientation)
     }
 
+    Component.onCompleted: {
+        if (isDebugMode) {
+            encTxtModel.append({
+                                   "deccharrole": " ",
+                                   "enccharole": "Н",
+                                   "staterole": false,
+                                   "countrole": 1
+                               })
+            encTxtModel.append({
+                                   "deccharrole": " ",
+                                   "enccharole": "М",
+                                   "staterole": false,
+                                   "countrole": 7
+                               })
+            encTxtModel.append({
+                                   "deccharrole": " ",
+                                   "enccharole": "В",
+                                   "staterole": false,
+                                   "countrole": 9
+                               })
+        }
+
+        //appManager.initialize()
+    }
+
+    //onClosing: appManager.uninitialize();
     onAppInForegroundChanged: {
         if (appInForeground) {
             if (!appInitialized) {

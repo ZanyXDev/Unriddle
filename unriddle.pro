@@ -28,11 +28,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #don't use precompiled headers https://www.kdab.com/beware-of-qt-module-wide-includes/
 
 SOURCES += \
-    src/letteritem.cpp \
     src/main.cpp 
 
-HEADERS += \
- src/letteritem.h
+#HEADERS += \
 
 RESOURCES += \
      qml.qrc \
