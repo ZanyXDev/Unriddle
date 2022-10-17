@@ -4,6 +4,7 @@
 #include <QtCore/QStandardPaths>
 #include <QtCore/QString>
 #include <QtCore/QTranslator>
+#include <QtCore/QChar>
 #include <QtGui/QFontDatabase>
 #include <QtGui/QGuiApplication>
 #include <QtQml/QQmlApplicationEngine>
@@ -23,7 +24,7 @@
 #include <QDirIterator>
 #endif
 
-
+#include "appcore.h"
 
 void createAppConfigFolder()
 {
@@ -75,6 +76,8 @@ int main(int argc, char *argv[]) {
      */
     // create folder AppConfigLocation
     createAppConfigFolder();
+
+    AppCore appCore;    // Create the application core with signals and slots
 
     QTranslator myappTranslator;
     myappTranslator.load(QLocale(), QLatin1String("unriddle"), QLatin1String("_"),
@@ -167,6 +170,7 @@ int main(int argc, char *argv[]) {
     }
 #endif
 
+
     QQmlContext *context = engine.rootContext();
     context->setContextProperty("mm",density / 25.4);
     context->setContextProperty("pt", 1);
@@ -176,6 +180,8 @@ int main(int argc, char *argv[]) {
 #ifdef QT_DEBUG
     context->setContextProperty("isDebugMode",true );
 #endif
+
+    context->setContextProperty("appCore", &appCore);
     QObject::connect(
                 &engine, &QQmlApplicationEngine::objectCreated, &app,
                 [url](QObject *obj, const QUrl &objUrl) {
@@ -187,6 +193,7 @@ int main(int argc, char *argv[]) {
     // function in an initialization function.
     //  qmlRegisterSingletonInstance("io.github.zanyxdev.qml_hwmonitor", 1, 0, "Monitor", monitor.get());
 
+    //qmlRegisterType<EncTxtModel>("EncTxtModel", 1, 0, "EncTxtModel");
     engine.load(url);
 
     return app.exec();

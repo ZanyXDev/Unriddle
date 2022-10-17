@@ -1,8 +1,9 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.12 as QQC2
-import QtQuick.Controls.Material 2.12
-import QtQuick.Controls.Material.impl 2.12
-import QtQuick.Layouts 1.12
+import QtQuick 2.15
+import QtQuick.Controls 2.15 as QQC2
+import QtQuick.Controls.Material 2.15
+import QtQuick.Controls.Material.impl 2.15
+import QtQuick.Layouts 1.15
+
 
 /**
   * @brief An Android-like timed message text in a box that self-destroys
@@ -12,16 +13,16 @@ QQC2.Pane {
     id: control
 
     // ----- Property Declarations
-    readonly property int longDelay: 3500; // 3.5 seconds
-    readonly property int shortDelay: 2000; // 2 seconds
+    readonly property int longDelay: 3500 // 3.5 seconds
+    readonly property int shortDelay: 2000 // 2 seconds
     readonly property real fadeTime: longDelay / 10
     property real time: shortDelay
     property real margin: 32 * DevicePixelRatio
     // whether this Toast will self-destroy when it is finished
     property bool selfDestroying: false
     property bool flat: control.enabled && control.Material.elevation > 0
-    property color bgColor:  Material.color(Material.primary)
-    property color foregroundColor:  Material.color(Material.foreground)
+    property color bgColor: Material.color(Material.primary)
+    property color foregroundColor: Material.color(Material.foreground)
     property int radius: 4 * DevicePixelRatio
 
     // ----- Signal declarations
@@ -37,7 +38,7 @@ QQC2.Pane {
         margins: margin
     }
 
-    implicitHeight:  24 * DevicePixelRatio
+    implicitHeight: 24 * DevicePixelRatio
     opacity: 0
 
     // ----- Then comes the other properties. There's no predefined order to these.
@@ -59,8 +60,8 @@ QQC2.Pane {
     }
     // ----- Visual children.
     background: Rectangle {
-        border.color: flat ? Qt.rgba(0,0,0,0.2) : "transparent"
-        color:  bgColor
+        border.color: flat ? Qt.rgba(0, 0, 0, 0.2) : "transparent"
+        color: bgColor
 
         radius: control.Material.elevation > 0 ? control.radius : 0
 
@@ -75,10 +76,10 @@ QQC2.Pane {
         spacing: 2 * DevicePixelRatio
 
         Item {
-            Layout.fillWidth:  true
+            Layout.fillWidth: true
         }
 
-        QQC2.Label{
+        QQC2.Label {
             id: message
 
             Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
@@ -97,7 +98,7 @@ QQC2.Pane {
         }
 
         Item {
-            Layout.fillWidth:  true
+            Layout.fillWidth: true
         }
     }
 
@@ -122,13 +123,14 @@ QQC2.Pane {
 
         onRunningChanged: {
             if (!running && selfDestroying) {
-                control.destroy();
+                control.destroy()
             }
         }
-
     }
     // ----- Custom non-visual children
     // ----- JavaScript functions
+
+
     /**
       * @brief Shows this Toast
       *
@@ -136,19 +138,19 @@ QQC2.Pane {
       * @param {real} duration Duration to show in milliseconds, defaults to 3000
       */
     function show(text, duration) {
-        message.text = text;
+        message.text = text
 
-        if (typeof duration !== "undefined") { // checks if parameter was passed
-            time = shortDelay;
+        if (typeof duration !== "undefined") {
+            // checks if parameter was passed
+            time = shortDelay
         }
-        if ( duration > longDelay){
+        if (duration > longDelay) {
             time = longDelay
         }
 
-        if ( duration < shortDelay){
-            time = shortDelay;
+        if (duration < shortDelay) {
+            time = shortDelay
         }
-        animation.start();
+        animation.start()
     }
-
 }

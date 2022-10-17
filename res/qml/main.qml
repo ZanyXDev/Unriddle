@@ -1,13 +1,15 @@
-import QtQuick 2.12
-import QtQuick.Window 2.12
-import QtQuick.Layouts 1.12
-import QtQuick.Controls 2.12 as QQC2
-import QtQuick.LocalStorage 2.12
-import QtQuick.Controls.Material 2.12
-import QtQuick.Controls.Material.impl 2.12
+import QtQuick 2.15
+import QtQuick.Window 2.15
+import QtQuick.Layouts 1.15
+import QtQuick.Controls 2.15 as QQC2
+import QtQuick.LocalStorage 2.15
+import QtQuick.Controls.Material 2.15
+import QtQuick.Controls.Material.impl 2.15
 
 import Common 1.0
 import Theme 1.0
+import Cells 1.0
+import DataModels 1.0 as DM
 
 QQC2.ApplicationWindow {
     id: appWnd
@@ -45,11 +47,17 @@ QQC2.ApplicationWindow {
         screenOrientationUpdated(screenOrientation)
     }
 
+    Component.onCompleted: {
+
+    }
+
+    onClosing: appCore.uninitialize()
     onAppInForegroundChanged: {
         if (appInForeground) {
             if (!appInitialized) {
                 appInitialized = true
                 Theme.setDarkMode()
+                appCore.initialize()
             }
         } else {
             if (isDebugMode)
@@ -60,26 +68,25 @@ QQC2.ApplicationWindow {
 
     // ----- Visual children
     header: QQC2.ToolBar {
+        id: pageHeader
         RowLayout {
             anchors.fill: parent
             spacing: 2 * DevicePixelRatio
             QQC2.ToolButton {
-                id: btnDrawer
+                id: btnChartShow
                 Layout.alignment: Qt.AlignTop | Qt.AlignLeft
 
                 icon.source: "qrc:/res/images/icons/ic_bar_chart.svg"
 
                 onClicked: {
-                    if (!navDrawer.opened)
-                        navDrawer.open()
-
-                    if (navDrawer.opened)
-                        navDrawer.close()
+                    if (isDebugMode) {
+                        console.log("btnChartShow click")
+                    }
                 }
             }
 
+            // spacer item
             Item {
-                // spacer item
                 Layout.fillHeight: true
             }
 
@@ -96,8 +103,8 @@ QQC2.ApplicationWindow {
                 }
             }
 
+            // spacer item
             Item {
-                // spacer item
                 Layout.fillHeight: true
             }
 
@@ -110,6 +117,72 @@ QQC2.ApplicationWindow {
         }
     }
 
+    ColumnLayout {
+        visible: true
+        id: mainColumnLayout
+
+        spacing: 4 * DevicePixelRatio
+
+        anchors {
+            topMargin: 4 * DevicePixelRatio
+            leftMargin: 4 * DevicePixelRatio
+            rightMargin: 4 * DevicePixelRatio
+            bottomMargin: 4 * DevicePixelRatio
+            fill: parent
+        }
+
+        component ProportionalRect: Item {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.preferredWidth: 1
+            Layout.preferredHeight: 1
+        }
+        ProportionalRect {
+            id: chipherRect
+            Layout.preferredHeight: 320 * DevicePixelRatio
+            MaterialPane {
+                id: chipherPanel
+                primaryColor: Theme.primary
+                Text {
+                    id: baseText
+                    text: appCore.cipherText
+                    visible: true
+                    onTextChanged: {
+                        if (isDebugMode) {
+                            console.log("baseText changed:" + text)
+                        }
+                    }
+                }
+            }
+        }
+        ProportionalRect {
+            id: alphabetRect
+            Layout.preferredHeight: 148 * DevicePixelRatio
+            MaterialPane {
+                id: alphabetPanel
+                primaryColor: Theme.primary
+                Letter {
+                    id: testLetter
+                    text: qsTr("A")
+                    font {
+                        family: font_families
+                        pointSize: 16
+                    }
+                    onClicked: {
+                        if (isDebugMode) {
+                            console.log("testLetter click")
+                        }
+                    }
+                    onSelectLetter: {
+                        if (isDebugMode) {
+                            console.log("selectLetter:" + letter)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     Toast {
         id: mainToast
         z: 100
@@ -118,7 +191,9 @@ QQC2.ApplicationWindow {
     }
 
     // ----- Qt provided non-visual children
-
+    DM.CipherDataModel {
+        id: cipherDataModel
+    }
     // ----- Custom non-visual children
 
     // ----- JavaScript functions
