@@ -1,13 +1,15 @@
-import QtQuick 2.12
-import QtQuick.Window 2.12
-import QtQuick.Layouts 1.12
-import QtQuick.Controls 2.12 as QQC2
-import QtQuick.LocalStorage 2.12
-import QtQuick.Controls.Material 2.12
-import QtQuick.Controls.Material.impl 2.12
+import QtQuick 2.15
+import QtQuick.Window 2.15
+import QtQuick.Layouts 1.15
+import QtQuick.Controls 2.15 as QQC2
+import QtQuick.LocalStorage 2.15
+import QtQuick.Controls.Material 2.15
+import QtQuick.Controls.Material.impl 2.15
 
 import Common 1.0
 import Theme 1.0
+import Cells 1.0
+import DataModels 1.0 as DM
 
 QQC2.ApplicationWindow {
     id: appWnd
@@ -45,11 +47,17 @@ QQC2.ApplicationWindow {
         screenOrientationUpdated(screenOrientation)
     }
 
+    Component.onCompleted: {
+
+    }
+
+    onClosing: appCore.uninitialize()
     onAppInForegroundChanged: {
         if (appInForeground) {
             if (!appInitialized) {
                 appInitialized = true
                 Theme.setDarkMode()
+                appCore.initialize()
             }
         } else {
             if (isDebugMode)
@@ -135,6 +143,16 @@ QQC2.ApplicationWindow {
             MaterialPane {
                 id: chipherPanel
                 primaryColor: Theme.primary
+                Text {
+                    id: baseText
+                    text: appCore.cipherText
+                    visible: true
+                    onTextChanged: {
+                        if (isDebugMode) {
+                            console.log("baseText changed:" + text)
+                        }
+                    }
+                }
             }
         }
         ProportionalRect {
@@ -143,6 +161,24 @@ QQC2.ApplicationWindow {
             MaterialPane {
                 id: alphabetPanel
                 primaryColor: Theme.primary
+                Letter {
+                    id: testLetter
+                    text: qsTr("A")
+                    font {
+                        family: font_families
+                        pointSize: 16
+                    }
+                    onClicked: {
+                        if (isDebugMode) {
+                            console.log("testLetter click")
+                        }
+                    }
+                    onSelectLetter: {
+                        if (isDebugMode) {
+                            console.log("selectLetter:" + letter)
+                        }
+                    }
+                }
             }
         }
     }
@@ -155,7 +191,9 @@ QQC2.ApplicationWindow {
     }
 
     // ----- Qt provided non-visual children
-
+    DM.CipherDataModel {
+        id: cipherDataModel
+    }
     // ----- Custom non-visual children
 
     // ----- JavaScript functions
