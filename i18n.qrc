@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>res/i18n/beer_inside_me_en.qm</file>
+        <file>res/i18n/beer_inside_me_ru.qm</file>
+        <file>res/i18n/beer_inside__ru.ts</file>
+        <file>res/i18n/beer_inside_me_en.ts</file>
+    </qresource>
+</RCC>
