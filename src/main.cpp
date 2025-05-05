@@ -1,18 +1,11 @@
 #include <QtCore/QCoreApplication>
-#include <QtCore/QDir>
-#include <QtCore/QLocale>
-#include <QtCore/QStandardPaths>
-#include <QtCore/QString>
+
 #include <QtCore/QTranslator>
-#include <QtCore/QChar>
-#include <QtGui/QFontDatabase>
 #include <QtGui/QGuiApplication>
+
 #include <QtQml/QQmlApplicationEngine>
 #include <QtQml/QQmlContext>
-#include <QtQuickControls2/QQuickStyle>
-#include <QtQml/qqml.h>
-#include <QScreen>
-#include <QVersionNumber>
+#include <QtGui/QScreen>
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroidExtras/QtAndroid>
@@ -21,179 +14,69 @@
 #endif
 
 #ifdef QT_DEBUG
-#include <QDirIterator>
+#include <QtCore/QDirIterator>
+#include <QtCore/QLoggingCategory>
+
 #endif
 
-#include "appcore.h"
-
-void createAppConfigFolder()
-{
-    QDir dirConfig(
-                QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation));
-#ifdef QT_DEBUG
-    qDebug() << "dirConfig.path()" << dirConfig.path();
-#endif
-    if (dirConfig.exists() == false) {
-        dirConfig.mkpath(dirConfig.path());
-    }
-}
-
-const QString getAppFont(){
-    QStringList font_families;
-
-    int id = QFontDatabase::addApplicationFont(":/res/fonts/PT-Astra-Serif_Regular.ttf");
-
-    if(id != -1){
-        font_families = QFontDatabase::applicationFontFamilies(id);
-    }else{
-        QFont font;
-        font_families << font.defaultFamily();
-    }
-
-#ifdef QT_DEBUG
-    qDebug() << "font:" <<font_families.first();
-#endif
-
-    return font_families.first();
-}
+#include "hal.h"
 
 int main(int argc, char *argv[]) {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    //QCoreApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
-    QCoreApplication::setOrganizationName("ZanyXDev");
-    QCoreApplication::setApplicationName("UnRiddle");
-    QCoreApplication::setApplicationVersion(
-                QString("%1.%2").arg(VERSION).arg(GIT_HASH));
 
-    ///TODO usage QVersionNumber version(1, 2, 3);
+#ifdef QT_DEBUG
+    QLocale::setDefault(QLocale::English);
+    QLoggingCategory::setFilterRules(QStringLiteral("qt.qml.binding.removal.info=true"));
+#endif
 
+    // Allocate [Hal] before the engine to ensure that it outlives it !!
+    QScopedPointer<Hal> m_hal(new Hal);   
+    m_hal->createAppFolder();
+
+    QCoreApplication::setOrganizationName(PACKAGE_NAME_STR);
+    QCoreApplication::setApplicationName(ACTIVITY_NAME_STR);
+    QCoreApplication::setApplicationVersion(VERSION_STR);
     QGuiApplication app(argc, argv);
 
-    /*!
-     * \brief Make docs encourage readers to query locale right
-     * \sa https://codereview.qt-project.org/c/qt/qtdoc/+/297560
-     */
-    // create folder AppConfigLocation
-    createAppConfigFolder();
-
-    AppCore appCore;    // Create the application core with signals and slots
-
     QTranslator myappTranslator;
-    myappTranslator.load(QLocale(), QLatin1String("unriddle"), QLatin1String("_"),
-                         QLatin1String(":/i18n"));
-    app.installTranslator(&myappTranslator);
-
-    QQuickStyle::setStyle("Material");
-
-    int density = 0;
-    bool isMobile = false;
-    /// TODO replace +android folder
-    const QUrl url(QStringLiteral("qrc:/res/qml/main.qml"));
-
-#ifdef Q_OS_ANDROID
-    //  BUG with dpi on some androids: https://bugreports.qt-project.org/browse/QTBUG-35701
-    // density = QtAndroid::androidActivity().callMethod<jint>("getScreenDpi");
-
-    QtAndroid::hideSplashScreen();
-
-    isMobile = true;
-    float logicalDensity = 0;
-    float yDpi = 0;
-    float xDpi = 0;
-
-    QAndroidJniEnvironment env;
-    //  BUG with dpi on some androids: https://bugreports.qt-project.org/browse/QTBUG-35701
-    QAndroidJniObject qtActivity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
-    if (env->ExceptionCheck()) {
-        env->ExceptionDescribe();
-        env->ExceptionClear();
-        return EXIT_FAILURE;
-    }
-    QAndroidJniObject resources = qtActivity.callObjectMethod("getResources", "()Landroid/content/res/Resources;");
-    if (env->ExceptionCheck()) {
-        env->ExceptionDescribe();
-        env->ExceptionClear();
-        return EXIT_FAILURE;
-    }
-    QAndroidJniObject displayMetrics = resources.callObjectMethod("getDisplayMetrics", "()Landroid/util/DisplayMetrics;");
-
-    if (env->ExceptionCheck()) {
-        env->ExceptionDescribe();
-        env->ExceptionClear();
-        return EXIT_FAILURE;
+    if (  myappTranslator.load(QLocale(), QLatin1String("UnRiddle"), QLatin1String("_"), QLatin1String(":/res/i18n")) ){
+        app.installTranslator(&myappTranslator);
     }
 
-    density = displayMetrics.getField<int>("densityDpi");
-    logicalDensity = displayMetrics.getField<float>("density");
-    yDpi = displayMetrics.getField<float>("ydpi");
-    xDpi = displayMetrics.getField<float>("xdpi");
-
-    qDebug() << "Native destop app =>>>";
-    qDebug() << "DensityDPI: " << density << " | "
-             << "Logical Density: " << logicalDensity << " | "
-             << "yDpi: " << yDpi  << " | "
-             << "xDpi: " << xDpi ;
-    qDebug() << "++++++++++++++++++++++++";
-#else
-    QScreen *screen = qApp->primaryScreen();
-    density = screen->physicalDotsPerInch() * screen->devicePixelRatio();
-
-#ifdef QT_DEBUG
-    qDebug() << "Native destop app =>>>";
-    qDebug() << "DensityDPI: " << density << " | "
-             << "physicalDPI: " << screen->physicalDotsPerInch() << " | "
-             << "devicePixelRatio(): " << screen->devicePixelRatio();
-    qDebug() << "++++++++++++++++++++++++";
-#endif
-
-#endif
-
-    double scale = density >= 640 ? 4 :
-                                    density >= 480 ? 3 :
-                                                     density >= 320 ? 2 :
-                                                                      density >= 240 ? 1.5 : 1;
-
-    // allocate monitor before the engine to ensure that it outlives it
-    // QScopedPointer<Monitor> monitor(new Monitor);
-
-    ///TODO release https://code.qt.io/cgit/qt/qtandroidextras.git/tree/examples/androidextras/customactivity?h=5.15
     QQmlApplicationEngine engine;
-
-    engine.addImportPath(":/res/qml");
-
-#ifdef QT_DEBUG
-    scale = 1.75;
-    QDirIterator it(":", QDirIterator::Subdirectories);
-    while (it.hasNext()) {
-        qDebug() << it.next();
-    }
-#endif
-
-
+    engine.addImportPath("qrc:/res/qml");
     QQmlContext *context = engine.rootContext();
-    context->setContextProperty("mm",density / 25.4);
-    context->setContextProperty("pt", 1);
-    context->setContextProperty("DevicePixelRatio", scale);
-    context->setContextProperty("isMobile",isMobile);
-    context->setContextProperty("font_families",getAppFont() );
-#ifdef QT_DEBUG
-    context->setContextProperty("isDebugMode",true );
+
+#ifdef Q_OS_ANDROID    
+    QtAndroid::hideSplashScreen();
 #endif
 
-    context->setContextProperty("appCore", &appCore);
+    QScreen *screen = qApp->primaryScreen();
+    m_hal->setDotsPerInch( screen->physicalDotsPerInch() );
+    m_hal->setDevicePixelRatio( screen->devicePixelRatio() );
+    qDebug() << "screen->devicePixelRatio():" << screen->devicePixelRatio();
+    qDebug() << "screen->physicalSize():" <<screen->physicalSize();
+    qDebug() << "screen->logicalDotsPerInch():" << screen->logicalDotsPerInch();
+
+    context->setContextProperty("AppVersion",VERSION_STR);
+    context->setContextProperty("isDebugMode", m_hal->getDebugMode() );           
+    context->setContextProperty("isMobile",m_hal->isRunOnMobile());
+    const QUrl url(QStringLiteral("qrc:/res/qml/main.qml"));
     QObject::connect(
-                &engine, &QQmlApplicationEngine::objectCreated, &app,
-                [url](QObject *obj, const QUrl &objUrl) {
-        if (!obj && url == objUrl) QCoreApplication::exit(-1);
-    },
-    Qt::QueuedConnection);
+        &engine, &QQmlApplicationEngine::objectCreated, &app,
+        [url](const QObject *obj, const QUrl &objUrl) {
+            if (!obj && url == objUrl) QCoreApplication::exit(-1);
+        },
+        Qt::QueuedConnection);
 
-    // Third, register the singleton type provider with QML by calling this
+    // https://raymii.org/s/articles/Qt_QML_Integrate_Cpp_with_QML_and_why_ContextProperties_are_bad.html
+
+    // Register the singleton type provider with QML by calling this
     // function in an initialization function.
-    //  qmlRegisterSingletonInstance("io.github.zanyxdev.qml_hwmonitor", 1, 0, "Monitor", monitor.get());
-
-    //qmlRegisterType<EncTxtModel>("EncTxtModel", 1, 0, "EncTxtModel");
+    qmlRegisterSingletonInstance("io.github.zanyxdev.unriddle.hal", 1, 0,"HAL", m_hal.get());
     engine.load(url);
 
     return app.exec();

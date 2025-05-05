@@ -38,7 +38,7 @@ QQC2.Pane {
         margins: margin
     }
 
-    implicitHeight: 24 * DevicePixelRatio
+    implicitHeight: 24
     opacity: 0
 
     // ----- Then comes the other properties. There's no predefined order to these.

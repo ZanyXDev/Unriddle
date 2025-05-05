@@ -1,16 +1,10 @@
 <RCC>
     <qresource prefix="/">
-        <file alias="qtquickcontrols2.conf">res/qml/qtquickcontrols2.conf</file>
         <file>res/qml/main.qml</file>
-        <file>res/qml/Common/qmldir</file>
-        <file>res/qml/Common/mydebugrect.qml</file>
-        <file>res/qml/Common/toast.qml</file>
-        <file>res/qml/Theme/qmldir</file>
-        <file>res/qml/Theme/theme.qml</file>
-        <file>res/qml/Common/materialpane.qml</file>
-        <file>res/qml/Cells/letter.qml</file>
-        <file>res/qml/Cells/qmldir</file>
-        <file>res/qml/DataModels/cipherdatamodel.qml</file>
-        <file>res/qml/DataModels/qmldir</file>
+        <file>res/qml/common/app_singleton.qml</file>
+        <file>res/qml/common/app_ver_txt.qml</file>
+        <file>res/qml/common/mydebugrect.qml</file>
+        <file>res/qml/common/qmldir</file>
+        <file>res/qml/common/toast.qml</file>
     </qresource>
 </RCC>

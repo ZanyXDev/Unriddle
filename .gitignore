@@ -53,3 +53,5 @@ compile_commands.json
 
 #Doxygen Doc
 *doc
+
+*build

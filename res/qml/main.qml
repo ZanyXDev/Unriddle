@@ -2,199 +2,179 @@ import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15 as QQC2
-import QtQuick.LocalStorage 2.15
-import QtQuick.Controls.Material 2.15
-import QtQuick.Controls.Material.impl 2.15
 
-import Common 1.0
-import Theme 1.0
-import Cells 1.0
-import DataModels 1.0 as DM
+import common 1.0
+import io.github.zanyxdev.unriddle.hal 1.0
 
 QQC2.ApplicationWindow {
-    id: appWnd
-    // ----- Property Declarations
-    property bool isMoreMenuNeed: true
+  id: appWnd
 
-    // Required properties should be at the top.
-    readonly property int screenOrientation: Screen.orientation
-    readonly property bool appInForeground: Qt.application.state === Qt.ApplicationActive
-    property bool appInitialized: false
-    // ----- Signal declarations
-    signal screenOrientationUpdated(int screenOrientation)
+  // Required properties should be at the top.
+  readonly property int screenOrientation: Qt.PortraitOrientation
+  readonly property bool appInForeground: Qt.application.state === Qt.ApplicationActive
 
-    // ----- Size information
-    width: 320 * DevicePixelRatio
-    height: 480 * DevicePixelRatio
-    // ----- Then comes the other properties. There's no predefined order to these.
+  property bool appInitialized: false
+  property bool isMoreMenuNeed: true
+
+  property var screenWidth: Screen.width
+  property var screenHeight: Screen.height
+  property var screenAvailableWidth: Screen.desktopAvailableWidth
+  property var screenAvailableHeight: Screen.desktopAvailableHeight
+
+  // ----- Signal declarations
+  signal screenOrientationUpdated(int screenOrientation)
+
+  // ----- Size information
+
+
+  /**
+  * @brief
+  * При работе с Android системами обычно выбирается базовый фрейм 360×640,
+  * для адаптации под удлиненные экраны 18:9 можно использовать размер фрейма 360×720.
+  * Размер фрейма для приложения на системе IOS чаще всего используется 375×812.
+*/
+  width: 360
+  height: 640
+
+  maximumHeight: height
+  maximumWidth: width
+
+  minimumHeight: height
+  minimumWidth: width
+  // ----- Then comes the other properties. There's no predefined order to these.
+  visible: true
+  visibility: (isMobile) ? Window.FullScreen : Window.Windowed
+  flags: Qt.Dialog
+  title: qsTr(" ")
+  Screen.orientationUpdateMask: Qt.PortraitOrientation | Qt.LandscapeOrientation
+                                | Qt.InvertedPortraitOrientation | Qt.InvertedLandscapeOrientation
+
+  // ----- Then attached properties and attached signal handlers.
+
+  // ----- States and transitions.
+  // ----- Signal handlers
+  Component.onCompleted: {
+    let infoMsg = `Screen.height[${Screen.height}], Screen.width[${Screen.width}]
+    Screen [height ${height},width ${width}]
+    Build with [${HAL.getAppBuildInfo()}]
+    Available physical screens [${Qt.application.screens.length}]
+    Available Resolution width: ${Screen.desktopAvailableWidth} height ${Screen.desktopAvailableHeight}
+    `
+    AppSingleton.toLog(infoMsg)
+
+    if (!isMobile) {
+      appWnd.moveToCenter()
+    }
+  }
+
+  onAppInForegroundChanged: {
+    if (appInForeground) {
+      if (!appInitialized) {
+        appInitialized = true
+
+        //appCore.initialize()
+      }
+    } else {
+      if (isDebugMode)
+        console.log(
+              "onAppInForegroundChanged-> [appInForeground:" + appInForeground
+              + ", appInitialized:" + appInitialized + "]")
+    }
+  }
+
+  // ----- Visual children
+  header: QQC2.ToolBar {
+    id: pageHeader
+    RowLayout {
+      anchors.fill: parent
+      spacing: 2
+      QQC2.ToolButton {
+        id: btnChartShow
+        Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+
+        icon.source: "qrc:/res/images/icons/ic_bar_chart.svg"
+
+        onClicked: {
+          if (isDebugMode) {
+            console.log("btnChartShow click")
+          }
+        }
+      }
+
+      // spacer item
+      Item {
+        Layout.fillHeight: true
+      }
+
+      QQC2.Label {
+        id: toolBarPageTitle
+        Layout.fillWidth: true
+
+        text: qsTr("UnRiddle")
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
+        font {
+          family: AppSingleton.astraFont.name
+          pointSize: AppSingleton.smallFontSize
+        }
+      }
+
+      // spacer item
+      Item {
+        Layout.fillHeight: true
+      }
+
+      QQC2.ToolButton {
+        id: btnMoreMenu
+        visible: isMoreMenuNeed
+        icon.source: "qrc:/res/images/icons/ic_bullet.svg"
+        //action: optionsMenuAction
+      }
+    }
+  }
+
+  ColumnLayout {
     visible: true
-    visibility: (isMobile) ? Window.FullScreen : Window.Windowed
-    flags: Qt.Dialog
-    title: qsTr(" ")
-    Screen.orientationUpdateMask: Qt.PortraitOrientation | Qt.LandscapeOrientation
-                                  | Qt.InvertedPortraitOrientation | Qt.InvertedLandscapeOrientation
-    Material.theme: Theme.theme
-    Material.primary: Theme.primary
-    Material.accent: Theme.accent
-    Material.background: Theme.background
-    Material.foreground: Theme.foreground
+    id: mainColumnLayout
 
-    // ----- Then attached properties and attached signal handlers.
-
-    // ----- States and transitions.
-    // ----- Signal handlers
-    onScreenOrientationChanged: {
-        screenOrientationUpdated(screenOrientation)
+    spacing: 4
+    anchors {
+      margins: 4
+      fill: parent
     }
 
-    Component.onCompleted: {
-
+    component ProportionalRect: Item {
+      Layout.fillWidth: true
+      Layout.fillHeight: true
+      Layout.preferredWidth: 1
+      Layout.preferredHeight: 1
     }
+    ProportionalRect {
+      id: chipherRect
+      Layout.preferredHeight: 320
+      Rectangle {
+        id: chipherPanel
 
-    onClosing: appCore.uninitialize()
-    onAppInForegroundChanged: {
-        if (appInForeground) {
-            if (!appInitialized) {
-                appInitialized = true
-                Theme.setDarkMode()
-                appCore.initialize()
-            }
-        } else {
-            if (isDebugMode)
-                console.log("onAppInForegroundChanged-> [appInForeground:"
-                            + appInForeground + ", appInitialized:" + appInitialized + "]")
+        Text {
+          id: baseText
+          text: "baseText"
+          visible: true
         }
+      }
     }
-
-    // ----- Visual children
-    header: QQC2.ToolBar {
-        id: pageHeader
-        RowLayout {
-            anchors.fill: parent
-            spacing: 2 * DevicePixelRatio
-            QQC2.ToolButton {
-                id: btnChartShow
-                Layout.alignment: Qt.AlignTop | Qt.AlignLeft
-
-                icon.source: "qrc:/res/images/icons/ic_bar_chart.svg"
-
-                onClicked: {
-                    if (isDebugMode) {
-                        console.log("btnChartShow click")
-                    }
-                }
-            }
-
-            // spacer item
-            Item {
-                Layout.fillHeight: true
-            }
-
-            QQC2.Label {
-                id: toolBarPageTitle
-                Layout.fillWidth: true
-
-                text: qsTr("UnRiddle")
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignHCenter
-                font {
-                    family: font_families
-                    pointSize: 18
-                }
-            }
-
-            // spacer item
-            Item {
-                Layout.fillHeight: true
-            }
-
-            QQC2.ToolButton {
-                id: btnMoreMenu
-                visible: isMoreMenuNeed
-                icon.source: "qrc:/res/images/icons/ic_bullet.svg"
-                //action: optionsMenuAction
-            }
-        }
+    ProportionalRect {
+      id: alphabetRect
+      Layout.preferredHeight: 148
     }
+  }
 
-    ColumnLayout {
-        visible: true
-        id: mainColumnLayout
+  // ----- Qt provided non-visual children
 
-        spacing: 4 * DevicePixelRatio
+  // ----- Custom non-visual children
 
-        anchors {
-            topMargin: 4 * DevicePixelRatio
-            leftMargin: 4 * DevicePixelRatio
-            rightMargin: 4 * DevicePixelRatio
-            bottomMargin: 4 * DevicePixelRatio
-            fill: parent
-        }
-
-        component ProportionalRect: Item {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.preferredWidth: 1
-            Layout.preferredHeight: 1
-        }
-        ProportionalRect {
-            id: chipherRect
-            Layout.preferredHeight: 320 * DevicePixelRatio
-            MaterialPane {
-                id: chipherPanel
-                primaryColor: Theme.primary
-                Text {
-                    id: baseText
-                    text: appCore.cipherText
-                    visible: true
-                    onTextChanged: {
-                        if (isDebugMode) {
-                            console.log("baseText changed:" + text)
-                        }
-                    }
-                }
-            }
-        }
-        ProportionalRect {
-            id: alphabetRect
-            Layout.preferredHeight: 148 * DevicePixelRatio
-            MaterialPane {
-                id: alphabetPanel
-                primaryColor: Theme.primary
-                Letter {
-                    id: testLetter
-                    text: qsTr("A")
-                    font {
-                        family: font_families
-                        pointSize: 16
-                    }
-                    onClicked: {
-                        if (isDebugMode) {
-                            console.log("testLetter click")
-                        }
-                    }
-                    onSelectLetter: {
-                        if (isDebugMode) {
-                            console.log("selectLetter:" + letter)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    Toast {
-        id: mainToast
-        z: 100
-        bgColor: Theme.primary
-        Material.elevation: 8
-    }
-
-    // ----- Qt provided non-visual children
-    DM.CipherDataModel {
-        id: cipherDataModel
-    }
-    // ----- Custom non-visual children
-
-    // ----- JavaScript functions
+  // ----- JavaScript functions
+  function moveToCenter() {
+    appWnd.y = (screenAvailableHeight / 2) - (height / 2)
+    appWnd.x = (screenAvailableWidth / 2) - (width / 2)
+  }
 }
